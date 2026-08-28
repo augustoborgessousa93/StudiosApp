@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VídeoQuiz | Educação Interativa</title>
+    
+    <!-- Fonte Nunito (Lúdica e Arredondada) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { nunito: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        vq: {
+                            primary: '#06B6D4',       // Turquesa
+                            'primary-dark': '#0891B2', 
+                            'primary-light': '#ECFEFF',
+                            secondary: '#F97316',     // Laranja
+                            'secondary-dark': '#EA580C',
+                            'secondary-light': '#FFEDD5',
+                            success: '#10B981',       // Verde Menta
+                            'success-dark': '#059669',
+                            'student': '#1E293B',       // Fundo Aluno
+                            'student-dark': '#0F172A'
+                        }
+                    },
+                    keyframes: {
+                        'soft-blink': {
+                            '0%, 100%': { opacity: '1', filter: 'brightness(1)' },
+                            '50%': { opacity: '0.85', filter: 'brightness(1.1)' }
+                        }
+                    },
+                    animation: {
+                        'soft-blink': 'soft-blink 2.5s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Confetes -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body { font-family: 'Nunito', sans-serif; background-color: #F8FAFC; color: #334155; overflow-x: hidden; }
+        
+        /* Scrollbar Premium */
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; border: 3px solid #F8FAFC; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        .view-hidden { display: none !important; }
+
+        /* Cards Gerais */
+        .card-vq { background: #ffffff; border: 3px solid #E2E8F0; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+
+        /* Botões 3D com Efeito de Vidro (Glass Shine) */
+        .btn-vq {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            border-radius: 16px; border: none; padding: 14px 28px;
+            cursor: pointer; user-select: none; position: relative; overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-bottom: 6px; z-index: 1;
+        }
+        
+        /* O Brilho Superior (Vidro) */
+        .btn-vq::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 35%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 100%);
+            border-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+            pointer-events: none; z-index: -1;
+        }
+
+        /* Conteúdo do botão acima do brilho */
+        .btn-vq > * { position: relative; z-index: 2; }
+
+        /* Hover: Afunda pela metade e brilha */
+        .btn-vq:hover:not(:disabled) {
+            transform: translateY(3px); margin-bottom: 3px; filter: brightness(1.05);
+        }
+        /* Active (Clique): Afunda completamente */
+        .btn-vq:active:not(:disabled) {
+            transform: translateY(6px); margin-bottom: 0px !important; box-shadow: 0 0 0 transparent !important; filter: brightness(0.95); transition: all 0.05s;
+        }
+        .btn-vq:disabled { filter: grayscale(1) opacity(0.6); cursor: not-allowed; transform: none !important; margin-bottom: 6px !important; box-shadow: none !important; }
+
+        /* Variantes de Cores 3D */
+        .btn-vq-primary { background: #06B6D4; color: white; box-shadow: 0 6px 0 #0891B2; }
+        .btn-vq-primary:hover:not(:disabled) { box-shadow: 0 3px 0 #0891B2 !important; }
+        
+        .btn-vq-secondary { background: #F97316; color: white; box-shadow: 0 6px 0 #EA580C; }
+        .btn-vq-secondary:hover:not(:disabled) { box-shadow: 0 3px 0 #EA580C !important; }
+
+        .btn-vq-success { background: #10B981; color: white; box-shadow: 0 6px 0 #059669; }
+        .btn-vq-success:hover:not(:disabled) { box-shadow: 0 3px 0 #059669 !important; }
+
+        .btn-vq-outline { background: white; color: #06B6D4; border: 3px solid #E2E8F0; box-shadow: 0 4px 0 #E2E8F0; }
+        .btn-vq-outline::after { display: none; /* Sem vidro no outline */ }
+        .btn-vq-outline:hover:not(:disabled) { background: #F8FAFC; box-shadow: 0 2px 0 #E2E8F0 !important; transform: translateY(2px); margin-bottom: 4px;}
+        .btn-vq-outline:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 transparent !important; margin-bottom: 2px !important; }
+
+        /* Inputs Premium */
+        .input-vq {
+            border: 3px solid #E2E8F0; background-color: #F8FAFC; border-radius: 16px;
+            padding: 14px 20px; font-weight: 700; color: #334155; outline: none;
+            transition: all 0.2s; width: 100%; font-size: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .input-vq:focus { border-color: #06B6D4; background-color: white; box-shadow: inset 0 0 0 transparent, 0 0 0 4px #ECFEFF; }
+
+        /* Alternativas da Pergunta (Aluno) */
+        .option-vq {
+            border: 3px solid #E2E8F0; border-radius: 20px; border-bottom-width: 6px;
+            padding: 18px 24px; font-weight: 800; color: #334155; cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1); background: white; 
+            display: block; width: 100%; text-align: left; margin-bottom: 12px; font-size: 1.1rem;
+        }
+        .option-vq:hover:not(:disabled) { border-color: #cbd5e1; transform: translateY(2px); border-bottom-width: 4px; margin-bottom: 14px; background: #F8FAFC; }
+        .option-vq:active:not(:disabled) { transform: translateY(6px); border-bottom-width: 0px; margin-bottom: 18px; }
+        .option-vq:disabled { cursor: not-allowed; }
+
+        .option-vq.selected-primary { border-color: #06B6D4; background-color: #ECFEFF; color: #0891B2; border-bottom-color: #0891B2; }
+        .option-vq.selected-success { border-color: #10B981; background-color: #D1FAE5; color: #059669; border-bottom-color: #059669; }
+        .option-vq.selected-danger { border-color: #F43F5E; background-color: #FFE4E6; color: #E11D48; border-bottom-color: #E11D48; }
+        .option-vq.disabled-unselected { opacity: 0.4; filter: grayscale(1); }
+
+        /* Linha do Tempo e Player */
+        .timeline-track { position: relative; height: 16px; background: #E2E8F0; border-radius: 8px; cursor: pointer; border: 2px solid #CBD5E1; }
+        .timeline-progress { position: absolute; left: 0; top: 0; height: 100%; background: #06B6D4; border-radius: 6px; width: 0%; pointer-events: none; transition: width 0.1s linear;}
+        .timeline-marker { 
+            position: absolute; top: 50%; transform: translate(-50%, -50%); 
+            width: 24px; height: 24px; background: white; border: 4px solid #F97316; 
+            border-radius: 50%; cursor: pointer; z-index: 10; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .timeline-marker:hover { transform: translate(-50%, -50%) scale(1.3); border-color: #06B6D4; }
+
+        .video-container { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; max-width: 100%; background: #000; border-radius: 1.5rem; }
+        .video-player-mount, .video-player-frame { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; display: block !important; }
+        
+        /* Efeito de Vidro para Cards Dashboard */
+        .dash-card { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .dash-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px -5px rgba(6, 182, 212, 0.15); border-color: #06B6D4; }
+
+        /* Modificadores Modo Apresentação */
+        .presentation-mode .option-vq { padding: 20px 28px !important; font-size: 1.3rem !important; margin-bottom: 16px !important; border-bottom-width: 6px !important; }
+        .presentation-mode .option-vq:active:not(:disabled) { border-bottom-width: 0px !important; margin-bottom: 22px !important; }
+        .presentation-mode #student-q-prompt { font-size: 2.25rem !important; line-height: 1.3 !important; }
+    </style>
+</head>
+<body class="font-nunito antialiased h-screen flex flex-col overflow-hidden text-vq-text bg-vq-gray-light selection:bg-vq-primary-light selection:text-vq-primary-dark">
+
+    <header class="bg-white border-b-4 border-vq-gray px-6 py-4 flex items-center justify-between shrink-0 z-20">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="UI.switchView('view-home')">
+            <div class="w-12 h-12 bg-vq-primary rounded-[20px] flex items-center justify-center text-white shadow-[0_4px_0_#0891B2] relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-b from-white/30 to-transparent"></div>
+                <svg class="w-7 h-7 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black tracking-tight text-vq-text leading-none">VídeoQuiz</h1>
+                <span class="text-vq-gray-dark text-xs font-black uppercase tracking-widest block mt-1">Ponto de checagem</span>
+            </div>
+        </div>
+        <div id="header-actions" class="flex gap-4 view-hidden items-center">
+            <div class="h-8 w-1 bg-vq-gray rounded-full mx-2"></div>
+            <button onclick="UI.switchView('view-home')" class="font-black text-vq-gray-dark hover:text-vq-text transition-colors flex items-center gap-2 uppercase tracking-wider text-sm bg-white border-2 border-vq-gray px-4 py-2 rounded-xl shadow-[0_2px_0_#E2E8F0] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> Dashboard
+            </button>
+            <button onclick="EditorUI.startTest()" class="btn-vq btn-vq-success text-sm py-3 px-6 animate-soft-blink">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg> Testar Jogo
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative" id="app-container">
+        
+        <section id="view-home" class="w-full h-full flex flex-col bg-vq-gray-light overflow-y-auto">
+            <div class="max-w-6xl w-full mx-auto p-6 md:p-10 fade-in">
+                
+                <header class="mb-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h2 class="text-4xl font-black text-vq-text mb-2">Bem-vindo(a) ao VídeoQuiz! 🚀</h2>
+                        <p class="text-vq-gray-dark font-bold text-lg">Suas aulas interativas ficam salvas automaticamente aqui no seu navegador.</p>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Coluna de Criação -->
+                    <div class="lg:col-span-1 flex flex-col gap-6">
+                        <div class="card-vq p-8 border-4 border-dashed border-vq-primary bg-vq-primary-light flex flex-col h-full justify-center">
+                            <div class="w-20 h-20 bg-white rounded-[24px] shadow-lg flex items-center justify-center text-vq-primary mx-auto mb-6 transform -rotate-3 border-2 border-vq-primary-light">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <h3 class="text-2xl font-black text-vq-primary-dark text-center mb-4">Nova Atividade</h3>
+                            <div class="space-y-4">
+                                <input type="url" id="youtube-link-input" placeholder="Cole o link do YouTube..." class="input-vq border-vq-primary-dark/20 focus:border-vq-primary text-center">
+                                <button onclick="HomeUI.createNew()" class="btn-vq btn-vq-primary w-full py-4 text-lg animate-soft-blink">Criar Agora</button>
+                            </div>
+                            
+                            <div class="relative flex items-center py-6">
+                                <div class="flex-grow border-t-2 border-vq-primary/20"></div>
+                                <span class="flex-shrink-0 mx-4 text-vq-primary/60 font-black uppercase text-xs">Ou Importar JSON</span>
+                                <div class="flex-grow border-t-2 border-vq-primary/20"></div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="HomeUI.importJSON(event)">
+                                <button onclick="document.getElementById('import-json-input').click()" class="font-black text-vq-primary-dark hover:text-vq-primary uppercase tracking-wide text-sm transition-colors flex items-center justify-center gap-2 w-full bg-white py-3 rounded-xl border-2 border-vq-primary/20 hover:border-vq-primary">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Carregar Arquivo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna de Biblioteca Local -->
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-2xl font-black text-vq-text flex items-center gap-3">
+                                <svg class="w-8 h-8 text-vq-secondary" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+                                Minhas Criações
+                            </h3>
+                            <span id="storage-status" class="text-xs font-bold px-3 py-1 bg-vq-gray rounded-lg text-vq-text-light border-2 border-vq-gray-dark/20">0 / 10MB</span>
+                        </div>
+                        
+                        <!-- Grid Injetado via JS -->
+                        <div id="dashboard-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Empty State carregado via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-editor" class="w-full h-full flex flex-col md:flex-row view-hidden bg-vq-gray-light">
+            <!-- Painel Esquerdo (Vídeo) -->
+            <div class="flex-1 flex flex-col min-w-0 p-4 md:p-8 overflow-y-auto">
+                <div class="max-w-4xl w-full mx-auto space-y-6">
+                    
+                    <!-- Cabeçalho do Editor -->
+                    <div class="flex gap-4">
+                        <input type="text" id="editor-title" placeholder="Dê um Título Genial para a Aula" class="input-vq flex-1 text-2xl" onchange="EditorUI.updateMetadata()">
+                        <input type="text" id="editor-subject" placeholder="Qual a Disciplina?" class="input-vq w-1/3 text-lg" onchange="EditorUI.updateMetadata()">
+                    </div>
+
+                    <!-- Vídeo -->
+                    <div class="bg-vq-student border-[6px] border-vq-student-dark rounded-[2rem] relative shadow-2xl p-2">
+                        <div class="video-container rounded-2xl" id="editor-video-wrapper"><div id="editor-video-container" class="video-player-mount"></div></div>
+                    </div>
+
+                    <!-- Controles -->
+                    <div class="card-vq p-6 border-4 shadow-sm">
+                        <div class="flex items-center gap-5">
+                            <button id="btn-play-pause" onclick="EditorUI.togglePlay()" class="btn-vq btn-vq-secondary !p-4 !rounded-[20px] !mb-0 shrink-0">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" id="icon-play"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="text-base font-black text-vq-primary-dark font-mono bg-vq-primary-light px-4 py-2 rounded-xl border-2 border-vq-primary">
+                                <span id="time-current">00:00</span>
+                            </div>
+                            
+                            <div class="flex-1 relative group cursor-pointer py-4" id="timeline-container" onclick="EditorUI.seekVideo(event)">
+                                <div class="timeline-track" id="timeline-track">
+                                    <div class="timeline-progress" id="timeline-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row justify-between items-center border-t-4 border-vq-gray pt-6 mt-6 gap-4">
+                            <p class="text-sm text-vq-text font-bold max-w-sm flex items-start gap-3 bg-vq-gray-light border-2 border-vq-gray p-3 rounded-xl">
+                                <span class="text-2xl leading-none">🎯</span> 
+                                <span>Ache um momento perfeito no vídeo e adicione uma pergunta interativa ou explicação.</span>
+                            </p>
+                            <button onclick="EditorUI.openQuestionModal()" class="btn-vq btn-vq-primary py-4 px-8 text-base flex-1 sm:flex-none animate-soft-blink">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                                Inserir Interação Aqui
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel Direito (Roteiro) -->
+            <div class="w-full md:w-96 bg-white border-l-4 border-vq-gray flex flex-col shrink-0 h-full shadow-2xl z-10 relative">
+                <div class="p-6 border-b-4 border-vq-gray bg-white flex items-center justify-between shrink-0">
+                    <h3 class="font-black text-vq-text text-xl flex items-center gap-3 uppercase tracking-wide">
+                        <svg class="w-6 h-6 text-vq-primary" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                        Roteiro
+                    </h3>
+                    <span id="question-count-badge" class="bg-vq-primary text-white text-base font-black px-4 py-1 rounded-xl shadow-[0_3px_0_#0891B2]">0</span>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-vq-gray-light" id="questions-list">
+                    <!-- Injetado via JS -->
+                </div>
+                <!-- Botão Extra de Salvamento/Exportação no Roteiro -->
+                <div class="p-6 border-t-4 border-vq-gray bg-white shrink-0">
+                    <button onclick="EditorUI.exportJSON()" class="btn-vq btn-vq-outline w-full py-4 text-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Baixar Backup (JSON)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-player" class="w-full h-full bg-vq-student-dark flex flex-col relative view-hidden">
+            <!-- Topbar Aluno -->
+            <div class="px-6 py-4 flex items-center justify-between bg-vq-student text-white border-b-4 border-white/10 shrink-0 z-20 relative shadow-lg">
+                <div class="flex items-center gap-4">
+                    <button onclick="PlayerUI.exitTest()" class="text-white/60 hover:text-white bg-white/5 hover:bg-white/10 p-3 rounded-2xl transition-all border-2 border-transparent hover:border-white/20 active:scale-95">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <h2 class="text-2xl font-black truncate max-w-sm md:max-w-xl" id="student-title-display">Atividade</h2>
+                </div>
+                
+                <div class="bg-vq-student-dark border-4 border-white/10 rounded-2xl px-5 py-2 flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full bg-vq-primary animate-pulse"></div>
+                    <span class="font-black text-white text-lg tracking-wide" id="student-progress-text">0 / 0</span>
+                </div>
+            </div>
+
+            <!-- Área do Vídeo -->
+            <div class="flex-1 relative flex items-center justify-center bg-black overflow-hidden">
+                <div class="w-full max-w-[1200px] relative px-4 md:px-10 h-full flex flex-col justify-center">
+                    <div class="video-container shadow-[0_0_50px_rgba(6,182,212,0.15)] border-[8px] border-vq-student rounded-[2rem] bg-vq-student" id="student-video-wrapper">
+                        <div id="student-video-container" class="video-player-mount rounded-xl overflow-hidden"></div>
+                    </div>
+                    <!-- Overlay de Proteção -->
+                    <div id="student-video-overlay" class="absolute inset-0 z-10 cursor-pointer" onclick="PlayerUI.handleOverlayClick()" title="O vídeo está protegido. Responda às perguntas!"></div>
+                </div>
+
+                <!-- Capa Inicial (Start) -->
+                <div id="start-overlay" class="absolute inset-0 bg-vq-student-dark/95 backdrop-blur-md flex flex-col items-center justify-center z-30 fade-in">
+                    <div class="bg-vq-student border-4 border-white/10 p-12 rounded-[2rem] max-w-lg text-center shadow-2xl w-full mx-4">
+                        <div class="mx-auto w-24 h-24 bg-vq-primary rounded-[32px] flex items-center justify-center text-white mb-8 transform -rotate-3 shadow-[0_8px_0_#0891B2] border-4 border-vq-primary-light/20">
+                            <svg class="w-12 h-12 ml-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <h1 class="text-3xl font-black text-white mb-4 leading-tight" id="start-overlay-title">Pronto para o Desafio?</h1>
+                        <p id="start-overlay-status" class="text-white/60 font-bold mb-10 text-lg">Preparando sua aula especial...</p>
+                        <div id="start-actions" class="w-full flex flex-col hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Painel da Pergunta (Aluno) -->
+                <div id="student-question-panel" class="absolute bottom-0 left-0 w-full bg-white text-vq-text rounded-t-[40px] shadow-[0_-20px_60px_rgba(0,0,0,0.6)] z-40 transform translate-y-full border-t-[8px] border-vq-primary-light">
+                    <div class="w-16 h-2 bg-vq-gray rounded-full mx-auto mt-4 mb-2"></div>
+                    <div class="max-w-4xl w-full mx-auto p-6 md:px-10 md:pb-10">
+                        <h3 class="text-3xl md:text-4xl font-black mb-10 leading-tight text-center" id="student-q-prompt">Enunciado da pergunta</h3>
+                        
+                        <!-- Ações Modo Apresentação -->
+                        <div id="presentation-actions" class="hidden flex flex-wrap justify-center gap-3 mb-8">
+                            <button id="btn-pres-timer" class="btn-vq btn-vq-outline !py-2 !px-4 text-sm !mb-0">⏳ Iniciar Tempo (30s)</button>
+                            <button id="btn-pres-reveal" class="btn-vq btn-vq-secondary !py-2 !px-4 text-sm !mb-0">👀 Revelar Resposta</button>
+                            <button id="btn-pres-repeat" class="btn-vq btn-vq-outline !border-vq-gray-dark !text-vq-gray-dark !py-2 !px-4 text-sm !mb-0">🔄 Repetir Pergunta</button>
+                        </div>
+
+                        <div id="student-q-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                            <!-- Alternativas -->
+                        </div>
+                        
+                        <!-- Área de Feedback Animada -->
+                        <div id="student-feedback-area" class="hidden rounded-3xl p-6 mb-8 text-xl font-black border-4 flex items-center gap-6"></div>
+                        
+                        <!-- Botões de Ação do Aluno -->
+                        <div class="flex justify-center border-t-4 border-vq-gray pt-8 gap-4">
+                            <button id="btn-student-confirm" class="btn-vq btn-vq-primary w-full md:w-1/2 text-xl py-5 hidden animate-soft-blink">Verificar Resposta</button>
+                            <button id="btn-student-rewatch" class="btn-vq btn-vq-secondary w-full md:w-1/2 text-xl py-5 hidden flex items-center justify-center gap-3 animate-soft-blink">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"></path></svg>
+                                Rever e Tentar De Novo
+                            </button>
+                            <button id="btn-student-continue" class="btn-vq btn-vq-success w-full md:w-1/2 text-xl py-5 hidden animate-soft-blink">Continuar Vídeo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barra de Progresso Fundo -->
+            <div class="h-6 bg-vq-student w-full relative z-20 shrink-0 border-t-4 border-white/10">
+                <div id="student-progress-bar" class="h-full bg-vq-primary w-0 transition-all duration-300 shadow-[inset_0_-4px_0_rgba(0,0,0,0.2)] rounded-r-full relative">
+                    <div class="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.15)_50%,rgba(255,255,255,0.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem]"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Modal de Editar Pergunta -->
+    <div id="modal-question" class="fixed inset-0 bg-vq-student-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 view-hidden">
+        <div id="modal-question-inner" class="card-vq border-4 w-full max-w-3xl flex flex-col max-h-[90vh] overflow-hidden shadow-2xl scale-90 opacity-0">
+            <div class="flex items-center justify-between p-6 border-b-4 border-vq-gray bg-white shrink-0">
+                <h3 class="text-2xl font-black text-vq-text">Criar Interação</h3>
+                <div class="flex items-center gap-4">
+                    <div class="bg-vq-primary-light text-vq-primary-dark font-black text-xl px-5 py-2 rounded-xl border-4 border-vq-primary flex items-center gap-2 shadow-[0_4px_0_#06B6D4]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <input type="text" id="question-time-input" value="00:00" class="bg-transparent border-none w-[4.5rem] text-center p-0 outline-none focus:ring-0 text-vq-primary-dark" maxlength="5">
+                    </div>
+                    <button onclick="EditorUI.closeModal()" class="text-vq-gray-dark hover:text-vq-danger bg-vq-gray-light hover:bg-vq-danger-light rounded-xl p-3 transition-colors border-2 border-transparent hover:border-vq-danger">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-8 overflow-y-auto flex-1 space-y-8 bg-white">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-black text-vq-primary uppercase tracking-widest mb-2">Formato da Interação</label>
+                        <select id="q-type" class="input-vq cursor-pointer" onchange="EditorUI.renderOptionsEditor()">
+                            <option value="multiple-choice">Múltipla Escolha</option>
+                            <option value="true-false">Verdadeiro ou Falso</option>
+                            <option value="explanation">Apenas Explicação / Nota</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-black text-vq-primary uppercase tracking-widest mb-2">Texto (Enunciado ou Explicação)</label>
+                        <textarea id="q-prompt" rows="3" class="input-vq resize-none text-xl" placeholder="Digite sua pergunta ou explicação aqui..."></textarea>
+                    </div>
+                </div>
+
+                <div id="options-section">
+                    <div class="flex justify-between items-end mb-4">
+                        <label class="block text-sm font-black text-vq-primary uppercase tracking-widest">Alternativas</label>
+                        <span class="text-xs font-black text-vq-success bg-vq-success-light px-3 py-1.5 rounded-xl border-2 border-vq-success-dark">Marque a correta na bolinha verde!</span>
+                    </div>
+                    <div id="options-container" class="space-y-3"></div>
+                    <button id="btn-add-option" type="button" onclick="EditorUI.addOption()" class="mt-4 btn-vq btn-vq-outline text-base py-3 px-4 w-full border-dashed border-4 border-vq-gray text-vq-gray-dark hover:border-vq-primary hover:text-vq-primary">
+                        + Adicionar Mais Uma Alternativa
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 border-t-4 border-vq-gray bg-vq-gray-light flex flex-col-reverse sm:flex-row justify-end gap-4 shrink-0">
+                <button onclick="EditorUI.closeModal()" class="btn-vq btn-vq-outline py-4 px-8 text-lg w-full sm:w-auto">Cancelar</button>
+                <button onclick="EditorUI.saveQuestion()" class="btn-vq btn-vq-primary py-4 px-10 text-lg w-full sm:w-auto">Salvar no Roteiro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Customizado -->
+    <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-vq-student-dark/80 backdrop-blur-sm view-hidden">
+        <div class="card-vq border-4 w-full max-w-sm p-10 text-center shadow-2xl scale-90 opacity-0 flex flex-col items-center" id="custom-alert-box">
+            <div id="alert-icon" class="w-20 h-20 rounded-[32px] mb-6 flex items-center justify-center border-4"></div>
+            <h3 id="alert-title" class="text-3xl font-black text-vq-text mb-4"></h3>
+            <p id="alert-message" class="text-lg font-bold text-vq-text-light mb-8 leading-snug"></p>
+            <div id="alert-buttons" class="w-full flex gap-3 flex-col sm:flex-row">
+                <button onclick="UI.closeAlert()" class="btn-vq btn-vq-primary w-full py-4 text-lg" id="alert-btn-ok">Entendi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /** UTILS E STORAGE **/
+        const Utils = {
+            generateId: () => 'vq-' + Math.random().toString(36).substr(2, 9),
+            formatTime: (s) => { if(isNaN(s)||s<0) return "00:00"; const m=Math.floor(s/60); const sc=Math.floor(s%60); return `${m.toString().padStart(2,'0')}:${sc.toString().padStart(2,'0')}`; },
+            parseTime: (str) => { const p=str.split(':'); if(p.length!==2)return null; const m=parseInt(p[0]); const s=parseInt(p[1]); if(isNaN(m)||isNaN(s))return null; return (m*60)+s; },
+            extractYT: (url) => { const r=/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/; const m=url.match(r); return (m&&m[2].length===11)?m[2]:null; },
+            getStorageSize: () => { let t=0; for(let x in localStorage){ if(localStorage.hasOwnProperty(x)){ t += ((localStorage[x].length + x.length) * 2); } } return t; },
+            formatBytes: (b) => (b / (1024*1024)).toFixed(2)
+        };
+
+        const AudioEngine = {
+            sounds: {},
+            unlocked: false,
+
+            init: () => {
+                const urls = {
+                    correct: './dragon-studio-correct-472358.mp3',
+                    error: './lesiakower-error-mistake-sound-effect-incorrect-answer-437420.mp3',
+                    pop: './soundreality-pop-sound-423716.mp3',
+                    ding: './u_31vnwfmzt6-ding-126626.mp3',
+                    click: './r0t0r-click-151673.mp3',
+                    alert: './dragon-studio-pop-402324.mp3',
+                    bonus: './liecio-bonus-points-190035.mp3'
+                };
+
+                for (const [key, url] of Object.entries(urls)) {
+                    const audio = new Audio(url);
+                    audio.preload = "auto";
+
+                    audio.addEventListener("error", () => {
+                        const errorCode = audio.error ? audio.error.code : "desconhecido";
+                        console.error(
+                            `[Áudio] Não foi possível carregar "${key}" em "${url}". Código: ${errorCode}. ` +
+                            `Confirme se o arquivo existe na mesma pasta do index.html e se o Cloudflare Pages o publicou.`
+                        );
+                    });
+
+                    AudioEngine.sounds[key] = audio;
+                }
+
+                // Libera os elementos de áudio na primeira interação real do usuário.
+                const unlockOnce = () => AudioEngine.unlock();
+                document.addEventListener("pointerdown", unlockOnce, { once: true, capture: true });
+                document.addEventListener("keydown", unlockOnce, { once: true, capture: true });
+            },
+
+            unlock: () => {
+                if (AudioEngine.unlocked) return;
+                AudioEngine.unlocked = true;
+
+                for (const [key, audio] of Object.entries(AudioEngine.sounds)) {
+                    const previousMuted = audio.muted;
+                    audio.muted = true;
+                    audio.currentTime = 0;
+
+                    const promise = audio.play();
+
+                    if (promise !== undefined) {
+                        promise
+                            .then(() => {
+                                audio.pause();
+                                audio.currentTime = 0;
+                                audio.muted = previousMuted;
+                            })
+                            .catch((error) => {
+                                audio.muted = previousMuted;
+                                console.warn(`[Áudio] Não foi possível liberar "${key}" na primeira interação:`, error);
+                            });
+                    } else {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.muted = previousMuted;
+                    }
+                }
+            },
+
+            play: (name) => {
+                const audio = AudioEngine.sounds[name];
+
+                if (!audio) {
+                    console.warn(`[Áudio] Efeito sonoro não encontrado: "${name}".`);
+                    return;
+                }
+
+                try {
+                    audio.currentTime = 0;
+                    const promise = audio.play();
+
+                    if (promise !== undefined) {
+                        promise.catch((error) => {
+                            console.warn(
+                                `[Áudio] Reprodução bloqueada ou arquivo indisponível (${name}):`,
+                                error
+                            );
+                        });
+                    }
+                } catch (error) {
+                    console.error(`[Áudio] Erro inesperado ao reproduzir "${name}":`, error);
+                }
+            }
+        };
+
+        // Inicializa e pré-carrega os efeitos sonoros.
+        AudioEngine.init();
+
+        // Gerenciador de Biblioteca do Professor
+        const AppStorage = {
+            KEY: 'vq_library',
+            get: () => JSON.parse(localStorage.getItem(AppStorage.KEY) || '[]'),
+            save: (activityData) => {
+                if(!activityData.metadata.id) return;
+                let acts = AppStorage.get();
+                const idx = acts.findIndex(a => a.metadata.id === activityData.metadata.id);
+                const clone = JSON.parse(JSON.stringify(activityData)); // Deep copy limpo
+                if(idx >= 0) acts[idx] = clone; else acts.push(clone);
+                
+                try {
+                    localStorage.setItem(AppStorage.KEY, JSON.stringify(acts));
+                    HomeUI.updateStorageBadge();
+                } catch(e) {
+                    if(e.name === 'QuotaExceededError') {
+                        UI.showAlert('Espaço Esgotado! 💾', 'Seu navegador não tem mais espaço para salvar. Baixe o backup (JSON) de atividades antigas e exclua-as daqui.', 'error');
+                    }
+                }
+            },
+            delete: (id) => {
+                let acts = AppStorage.get();
+                acts = acts.filter(a => a.metadata.id !== id);
+                localStorage.setItem(AppStorage.KEY, JSON.stringify(acts));
+                HomeUI.updateStorageBadge();
+            }
+        };
+
+        // Gerenciador de Progresso do Aluno
+        const StudentStorage = {
+            load: (actId) => JSON.parse(localStorage.getItem('vq_student_' + actId) || '{"answered":[], "attempts":{}}'),
+            save: (actId, answeredSet, attemptsObj) => {
+                localStorage.setItem('vq_student_' + actId, JSON.stringify({ answered: Array.from(answeredSet), attempts: attemptsObj }));
+            }
+        };
+
+        /** INTERFACE GLOBAL E ALERTAS **/
+        const UI = {
+            switchView: (viewId) => {
+                AudioEngine.play('click');
+                ['view-home', 'view-editor', 'view-player'].forEach(id => document.getElementById(id).classList.add('view-hidden'));
+                document.getElementById(viewId).classList.remove('view-hidden');
+                
+                const headerActions = document.getElementById('header-actions');
+                if(viewId === 'view-editor') {
+                    headerActions.classList.remove('view-hidden');
+                    headerActions.classList.add('flex');
+                } else {
+                    headerActions.classList.add('view-hidden');
+                    headerActions.classList.remove('flex');
+                }
+                
+                if(viewId === 'view-home') {
+                    HomeUI.renderDash();
+                    const homeFade = document.querySelector('#view-home .fade-in');
+                    if(homeFade) Motion.animate(homeFade, { opacity: [0, 1], y: [15, 0] }, { duration: 0.4, easing: "ease-out" });
+                }
+            },
+            
+            // Alerta aprimorado com Callback opcional para Confirmar
+            showAlert: (title, message, type = 'info', onConfirm = null) => {
+                AudioEngine.play(type === 'error' || type === 'warning' ? 'alert' : 'pop');
+                const alertEl = document.getElementById('custom-alert');
+                const box = document.getElementById('custom-alert-box');
+                const btnContainer = document.getElementById('alert-buttons');
+                
+                document.getElementById('alert-title').innerText = title;
+                document.getElementById('alert-message').innerText = message;
+                
+                const iconContainer = document.getElementById('alert-icon');
+                if(type === 'error') {
+                    iconContainer.className = 'w-24 h-24 rounded-[32px] mb-6 flex items-center justify-center bg-vq-danger text-white shadow-[0_6px_0_#E11D48] border-4 border-vq-danger-light';
+                    iconContainer.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                } else if(type === 'warning') {
+                    iconContainer.className = 'w-24 h-24 rounded-[32px] mb-6 flex items-center justify-center bg-vq-secondary text-white shadow-[0_6px_0_#EA580C] border-4 border-vq-secondary-light';
+                    iconContainer.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+                } else {
+                    iconContainer.className = 'w-24 h-24 rounded-[32px] mb-6 flex items-center justify-center bg-vq-primary text-white shadow-[0_6px_0_#0891B2] border-4 border-vq-primary-light';
+                    iconContainer.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                }
+
+                btnContainer.innerHTML = '';
+                if(onConfirm) {
+                    const btnCancel = document.createElement('button');
+                    btnCancel.className = 'btn-vq btn-vq-outline w-full py-4 text-lg';
+                    btnCancel.innerText = 'Cancelar';
+                    btnCancel.onclick = UI.closeAlert;
+                    
+                    const btnOk = document.createElement('button');
+                    btnOk.className = type === 'error' || type === 'warning' ? 'btn-vq btn-vq-secondary w-full py-4 text-lg' : 'btn-vq btn-vq-primary w-full py-4 text-lg';
+                    btnOk.innerText = 'Sim, Confirmar';
+                    btnOk.onclick = () => { UI.closeAlert(); onConfirm(); };
+                    
+                    btnContainer.appendChild(btnCancel);
+                    btnContainer.appendChild(btnOk);
+                } else {
+                    const btnOk = document.createElement('button');
+                    btnOk.className = 'btn-vq btn-vq-primary w-full py-4 text-lg';
+                    btnOk.innerText = 'Entendi';
+                    btnOk.onclick = UI.closeAlert;
+                    btnContainer.appendChild(btnOk);
+                }
+
+                alertEl.classList.remove('view-hidden');
+                box.classList.remove('scale-90', 'opacity-0');
+                Motion.animate(box, { scale: [0.9, 1], opacity: [0, 1] }, { easing: Motion.spring({ stiffness: 400, damping: 25 }) });
+            },
+            closeAlert: () => {
+                const alertEl = document.getElementById('custom-alert');
+                const box = document.getElementById('custom-alert-box');
+                Motion.animate(box, { scale: 0.9, opacity: 0 }, { duration: 0.2 }).finished.then(() => {
+                    alertEl.classList.add('view-hidden');
+                    box.classList.add('scale-90', 'opacity-0');
+                });
+            }
+        };
+
+        const Store = {
+            data: { schemaVersion: "1.0.1", activityType: "interactive-video", metadata: { id: "", title: "", subject: "" }, video: { provider: "youtube", videoId: "", duration: 0, currentTime: 0 }, interactions: [] },
+            initNew: () => { Store.data.metadata.id = Utils.generateId(); Store.data.metadata.title = ""; Store.data.metadata.subject = ""; Store.data.interactions = []; Store.data.video.currentTime = 0; },
+            load: (savedData) => { Store.data = savedData; },
+            addInteraction: (interaction) => { Store.data.interactions.push(interaction); Store.data.interactions.sort((a, b) => a.time - b.time); AppStorage.save(Store.data); },
+            deleteInteraction: (id) => { Store.data.interactions = Store.data.interactions.filter(i => i.id !== id); AppStorage.save(Store.data); },
+            getInteraction: (id) => Store.data.interactions.find(i => i.id === id),
+            updateInteraction: (id, newProps) => {
+                const index = Store.data.interactions.findIndex(i => i.id === id);
+                if (index !== -1) { Store.data.interactions[index] = { ...Store.data.interactions[index], ...newProps }; Store.data.interactions.sort((a, b) => a.time - b.time); AppStorage.save(Store.data); }
+            }
+        };
+
+        /** STREAMING_CHUNK:Interface do Dashboard (Home) **/
+        const HomeUI = {
+            updateStorageBadge: () => {
+                const bytes = Utils.getStorageSize();
+                const mb = Utils.formatBytes(bytes);
+                const el = document.getElementById('storage-status');
+                el.innerText = `${mb} / ~5MB Usados`;
+                if(bytes > 4000000) { el.classList.replace('bg-vq-gray', 'bg-vq-danger-light'); el.classList.replace('text-vq-text-light', 'text-vq-danger-dark'); }
+            },
+            renderDash: () => {
+                HomeUI.updateStorageBadge();
+                const grid = document.getElementById('dashboard-grid');
+                const acts = AppStorage.get();
+                grid.innerHTML = '';
+                
+                if(acts.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-1 sm:col-span-2 border-4 border-dashed border-vq-gray bg-white rounded-[24px] p-10 flex flex-col items-center justify-center text-center h-full min-h-[250px]">
+                            <div class="w-20 h-20 bg-vq-gray-light rounded-full flex items-center justify-center mb-4 text-vq-gray-dark border-4 border-vq-gray">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            </div>
+                            <h4 class="font-black text-vq-text text-xl mb-2">Sua biblioteca está limpinha!</h4>
+                            <p class="font-bold text-vq-text-light">Crie sua primeira atividade interativa ao lado.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                acts.forEach(a => {
+                    const card = document.createElement('div');
+                    card.className = "card-vq dash-card border-4 p-5 flex flex-col bg-white relative overflow-hidden group";
+                    const bgAccent = `bg-gradient-to-br from-vq-primary-light to-transparent`;
+                    card.innerHTML = `
+                        <div class="absolute inset-0 ${bgAccent} opacity-50 z-0"></div>
+                        <div class="relative z-10 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-black bg-white border-2 border-vq-gray px-2 py-1 rounded-lg text-vq-primary uppercase tracking-widest shadow-sm">${a.metadata.subject || 'Geral'}</span>
+                                <span class="flex items-center gap-1 text-sm font-black text-vq-gray-dark bg-vq-gray-light px-2 py-1 rounded-lg border-2 border-vq-gray"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg> ${a.interactions.length}</span>
+                            </div>
+                            <h4 class="font-black text-vq-text text-xl mb-1 line-clamp-2 leading-tight">${a.metadata.title || 'Sem Título'}</h4>
+                            <div class="mt-auto pt-6 flex flex-wrap gap-2">
+                                <button onclick="HomeUI.editSaved('${a.metadata.id}')" class="btn-vq btn-vq-primary flex-1 !py-3 !text-sm min-w-[30%]">Editar</button>
+                                <button onclick="HomeUI.playSaved('${a.metadata.id}')" class="btn-vq btn-vq-success !py-3 !px-4" title="Testar Aluno"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg></button>
+                                <button onclick="HomeUI.clearProgress('${a.metadata.id}')" class="btn-vq btn-vq-outline !border-vq-secondary-light !text-vq-secondary !py-3 !px-4 hover:!bg-vq-secondary-light" title="Limpar Progresso"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
+                                <button onclick="HomeUI.deleteSaved('${a.metadata.id}')" class="btn-vq btn-vq-outline !border-vq-danger-light !text-vq-danger !py-3 !px-4 hover:!bg-vq-danger-light" title="Excluir"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            },
+            createNew: () => {
+                const url = document.getElementById('youtube-link-input').value;
+                const id = Utils.extractYT(url);
+                if(id) { Store.initNew(); Store.data.video.videoId = id; EditorUI.init(id, true); }
+                else UI.showAlert("Link Inválido", "Cole um link válido do YouTube.", "error");
+            },
+            importJSON: (e) => {
+                const f = e.target.files[0]; if(!f) return; const r = new FileReader();
+                r.onload = (ev) => {
+                    try {
+                        const j = JSON.parse(ev.target.result); if(j.activityType !== "interactive-video") throw new Error();
+                        // Garante um ID novo para não sobrescrever sem querer se importar o mesmo arquivo
+                        j.metadata.id = Utils.generateId();
+                        Store.load(j); AppStorage.save(Store.data); HomeUI.renderDash();
+                        UI.showAlert("Sucesso!", "Atividade importada e salva na sua biblioteca local.");
+                    } catch { UI.showAlert("Erro", "Arquivo incompatível.", "error"); }
+                }; r.readAsText(f); e.target.value = '';
+            },
+            editSaved: (id) => { const a = AppStorage.get().find(x=>x.metadata.id===id); if(a){ Store.load(a); EditorUI.init(a.video.videoId, true); } },
+            playSaved: (id) => { const a = AppStorage.get().find(x=>x.metadata.id===id); if(a){ Store.load(a); PlayerUI.init(); } },
+            clearProgress: (id) => { UI.showAlert("Limpar Progresso?", "Isso apagará as respostas salvas desta atividade no navegador atual.", "warning", () => { localStorage.removeItem('vq_student_' + id); UI.showAlert("Pronto!", "Progresso do aluno limpo com sucesso."); }); },
+            deleteSaved: (id) => { UI.showAlert("Excluir Atividade?", "Você tem certeza? Essa ação não pode ser desfeita.", "warning", () => { AppStorage.delete(id); HomeUI.renderDash(); }); }
+        };
+
+        /** STREAMING_CHUNK:YOUTUBE ADAPTER (Robusto e com Nocookie) **/
+        let ytApiPromise = null;
+        function loadYouTubeAPI() {
+            if (window.YT && window.YT.Player) return Promise.resolve();
+            if (ytApiPromise) return ytApiPromise;
+            ytApiPromise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = "https://www.youtube.com/iframe_api";
+                document.head.appendChild(script);
+
+                const timeout = setTimeout(() => { reject(new Error('A API do YouTube não respondeu.')); }, 15000);
+                const previousReady = window.onYouTubeIframeAPIReady;
+                window.onYouTubeIframeAPIReady = () => { clearTimeout(timeout); if (typeof previousReady === 'function') previousReady(); resolve(); };
+            }); return ytApiPromise;
+        }
+
+        class YouTubeAdapter {
+            constructor(containerId, isStudent = false) {
+                this.containerId = containerId; this.wrapperId = containerId === 'editor-video-container' ? 'editor-video-wrapper' : 'student-video-wrapper';
+                this.player = null; this.isStudent = isStudent; this.timeLoop = null; this.onTimeUpdateCallback = null; this.isReady = false; this.ensureMount();
+            }
+            ensureMount() {
+                let mount = document.getElementById(this.containerId); if (mount) return mount;
+                const wrapper = document.getElementById(this.wrapperId); wrapper.innerHTML = '';
+                mount = document.createElement('div'); mount.id = this.containerId; mount.className = 'video-player-mount'; wrapper.appendChild(mount); return mount;
+            }
+            normalizeIframe() {
+                if (!this.player || !this.player.getIframe) return; const iframe = this.player.getIframe(); if (!iframe) return;
+                iframe.classList.remove('video-container'); iframe.classList.add('video-player-frame');
+            }
+            async loadVideo(videoId) {
+                await loadYouTubeAPI(); this.isReady = false;
+                return new Promise((resolve, reject) => {
+                    let settled = false;
+                    const finishResolve = () => { if (settled) return; settled = true; this.isReady = true; this.startTimeLoop(); resolve(); };
+                    const finishReject = (m) => { if (settled) return; settled = true; this.isReady = false; reject(new Error(m)); };
+                    const readyTimeout = setTimeout(() => { finishReject('O player demorou para carregar.'); }, 15000);
+                    const clearAndResolve = () => { clearTimeout(readyTimeout); this.normalizeIframe(); finishResolve(); };
+                    const clearAndReject = (m) => { clearTimeout(readyTimeout); finishReject(m); };
+
+                    if (this.player) { try { this.player.cueVideoById(videoId); setTimeout(clearAndResolve, 350); } catch (e) { clearAndReject('Erro ao preparar vídeo.'); } return; }
+
+                    const playerVars = { playsinline: 1, rel: 0, modestbranding: 1, controls: this.isStudent ? 0 : 1, fs: this.isStudent ? 0 : 1, disablekb: this.isStudent ? 1 : 0, enablejsapi: 1 };
+                    if (location.protocol === 'http:' || location.protocol === 'https:') playerVars.origin = location.origin;
+                    
+                    this.ensureMount();
+                    this.player = new YT.Player(this.containerId, {
+                        height: '100%', width: '100%', videoId, host: 'https://www.youtube-nocookie.com', playerVars,
+                        events: {
+                            onReady: clearAndResolve,
+                            onStateChange: (e) => { if(this.player.getDuration && this.player.getDuration() > 0) Store.data.video.duration = this.player.getDuration(); },
+                            onAutoplayBlocked: () => { if (this.isStudent) PlayerUI.handlePlaybackFailure('Clique novamente para liberar o vídeo.'); },
+                            onError: (e) => clearAndReject(`Erro YouTube (${e.data})`)
+                        }
+                    });
+                });
+            }
+            startTimeLoop() {
+                if (this.timeLoop) clearInterval(this.timeLoop);
+                this.timeLoop = setInterval(() => {
+                    if (this.player && this.player.getCurrentTime) {
+                        const curr = this.player.getCurrentTime(); const dur = this.player.getDuration() || Store.data.video.duration;
+                        Store.data.video.currentTime = curr; Store.data.video.duration = dur;
+                        if (this.onTimeUpdateCallback) this.onTimeUpdateCallback(curr, dur);
+                    }
+                }, 500);
+            }
+            destroy() { if (this.timeLoop) clearInterval(this.timeLoop); if (this.player && this.player.destroy) this.player.destroy(); this.player = null; this.isReady = false; this.ensureMount(); }
+            pause() { if(this.player && this.player.pauseVideo) this.player.pauseVideo(); }
+            play() { if(!this.isReady || !this.player || !this.player.playVideo) return false; this.player.playVideo(); return true; }
+            seekTo(seconds) { if(this.player && this.player.seekTo) this.player.seekTo(seconds, true); }
+        }
+
+        let editorVideo, studentVideo;
+
+        /** STREAMING_CHUNK:CONTROLADOR EDITOR **/
+        const EditorUI = {
+            currentEditingQuestionId: null,
+            init: async (videoId, isLoaded = false) => {
+                UI.switchView('view-editor'); 
+                document.getElementById('editor-title').value = Store.data.metadata.title;
+                document.getElementById('editor-subject').value = Store.data.metadata.subject;
+                if(!isLoaded) AppStorage.save(Store.data); // Auto-save inicial
+                
+                if (!editorVideo) { editorVideo = new YouTubeAdapter('editor-video-container', false); editorVideo.onTimeUpdateCallback = EditorUI.updateTimeline; }
+                try { await editorVideo.loadVideo(videoId); EditorUI.renderQuestionsList(); } catch (e) { UI.showAlert("Aviso", e.message, "error"); }
+            },
+            updateMetadata: () => { Store.data.metadata.title = document.getElementById('editor-title').value; Store.data.metadata.subject = document.getElementById('editor-subject').value; AppStorage.save(Store.data); },
+            togglePlay: () => { if (!editorVideo || !editorVideo.player) return; if (editorVideo.player.getPlayerState() === YT.PlayerState.PLAYING) editorVideo.pause(); else editorVideo.play(); },
+            updateTimeline: (currentTime, duration) => {
+                if(isNaN(duration) || duration === 0) return;
+                document.getElementById('time-current').innerText = Utils.formatTime(currentTime);
+                document.getElementById('timeline-progress').style.width = `${(currentTime / duration) * 100}%`;
+                const track = document.getElementById('timeline-track'); track.querySelectorAll('.timeline-marker').forEach(m => m.remove());
+                Store.data.interactions.forEach(inter => {
+                    const marker = document.createElement('div'); marker.className = 'timeline-marker'; marker.style.left = `${(inter.time / duration) * 100}%`;
+                    marker.onclick = (e) => { e.stopPropagation(); editorVideo.seekTo(inter.time); }; track.appendChild(marker);
+                });
+            },
+            seekVideo: (event) => { if (!editorVideo || !Store.data.video.duration) return; const rect = document.getElementById('timeline-container').getBoundingClientRect(); editorVideo.seekTo(Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * Store.data.video.duration); },
+            
+            // Lógica do Modal
+            openQuestionModal: (existingId = null) => {
+                AudioEngine.play('click');
+                editorVideo.pause(); EditorUI.currentEditingQuestionId = existingId;
+                const m = document.getElementById('modal-question'); const i = document.getElementById('modal-question-inner'); const t = document.getElementById('question-time-input');
+                
+                if (existingId) {
+                    const inter = Store.getInteraction(existingId);
+                    document.getElementById('q-type').value = inter.type; document.getElementById('q-prompt').value = inter.prompt; t.value = Utils.formatTime(inter.time);
+                    EditorUI.renderOptionsEditor(inter.options, inter.correctAnswer);
+                } else {
+                    document.getElementById('q-type').value = 'multiple-choice'; document.getElementById('q-prompt').value = ''; t.value = Utils.formatTime(Store.data.video.currentTime);
+                    EditorUI.renderOptionsEditor([ { id: Utils.generateId(), text: "" }, { id: Utils.generateId(), text: "" } ], null);
+                }
+                
+                m.classList.remove('view-hidden'); i.classList.remove('scale-90', 'opacity-0');
+                Motion.animate(i, { scale: [0.9, 1], opacity: [0, 1] }, { easing: Motion.spring({ stiffness: 400, damping: 25 }) });
+            },
+            closeModal: () => {
+                const m = document.getElementById('modal-question'); const i = document.getElementById('modal-question-inner');
+                Motion.animate(i, { scale: 0.9, opacity: 0 }, { duration: 0.2 }).finished.then(() => {
+                    m.classList.add('view-hidden');
+                    i.classList.add('scale-90', 'opacity-0');
+                });
+            },
+            renderOptionsEditor: (extOpts = null, correct = null) => {
+                const type = document.getElementById('q-type').value; const cont = document.getElementById('options-container'); const btnAdd = document.getElementById('btn-add-option'); 
+                const section = document.getElementById('options-section');
+                cont.innerHTML = '';
+                
+                if (type === 'explanation') {
+                    section.classList.add('hidden');
+                } else if (type === 'true-false') { 
+                    section.classList.remove('hidden');
+                    btnAdd.style.display = 'none'; [ { id: 'opt-true', text: 'Verdadeiro' }, { id: 'opt-false', text: 'Falso' } ].forEach(o => cont.appendChild(EditorUI.createOptionHTML(o.id, o.text, correct === o.id, true))); 
+                } else { 
+                    section.classList.remove('hidden');
+                    btnAdd.style.display = 'flex'; (extOpts || [ { id: Utils.generateId(), text: "" }, { id: Utils.generateId(), text: "" } ]).forEach(o => cont.appendChild(EditorUI.createOptionHTML(o.id, o.text, correct === o.id, false))); 
+                }
+            },
+            createOptionHTML: (id, text, isCorrect, isReadOnly) => {
+                const div = document.createElement('div'); div.className = "flex items-center gap-4 bg-vq-gray-light p-3 rounded-2xl border-[3px] border-vq-gray transition-colors hover:border-vq-primary focus-within:border-vq-primary focus-within:bg-white"; div.dataset.optId = id;
+                const radio = document.createElement('input'); radio.type = "radio"; radio.name = "correct-answer"; radio.value = id; radio.checked = isCorrect; radio.className = "w-7 h-7 text-vq-success border-4 border-vq-gray focus:ring-vq-success cursor-pointer ml-2 accent-vq-success shrink-0";
+                const input = document.createElement('input'); input.type = "text"; input.value = text; input.placeholder = "Digite a alternativa..."; input.className = "flex-1 bg-transparent border-none font-bold text-vq-text outline-none focus:ring-0 text-lg"; if (isReadOnly) input.readOnly = true;
+                div.appendChild(radio); div.appendChild(input);
+                if (!isReadOnly) {
+                    const btnRem = document.createElement('button'); btnRem.type = "button"; btnRem.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                    btnRem.className = "text-vq-gray-dark hover:text-vq-danger p-2 bg-vq-gray rounded-xl transition-colors shrink-0"; btnRem.onclick = () => div.remove(); div.appendChild(btnRem);
+                } return div;
+            },
+            addOption: () => document.getElementById('options-container').appendChild(EditorUI.createOptionHTML(Utils.generateId(), "", false, false)),
+            
+            saveQuestion: () => {
+                const p = document.getElementById('q-prompt').value.trim(); const tp = document.getElementById('q-type').value; const tSec = Utils.parseTime(document.getElementById('question-time-input').value);
+                if (!p) { UI.showAlert("Opa!", "Você esqueceu de digitar o texto.", "warning"); return; }
+                if (tSec === null) { UI.showAlert("Eita!", "Tempo inválido. Use o formato MM:SS (ex: 01:20)", "warning"); return; }
+
+                let opts = [], cAns = null;
+                
+                if (tp !== 'explanation') {
+                    document.querySelectorAll('#options-container > div').forEach(el => { const t = el.querySelector('input[type="text"]').value.trim(); const id = el.dataset.optId; opts.push({ id, text:t }); if (el.querySelector('input[type="radio"]').checked) cAns = id; });
+                    if (tp === 'multiple-choice' && opts.some(o => o.text === "")) { UI.showAlert("Opa!", "Tem alternativa em branco ali, preencha todas.", "warning"); return; }
+                    if (!cAns) { UI.showAlert("Quase lá!", "Faltou marcar qual é a alternativa correta na bolinha verde.", "warning"); return; }
+                }
+
+                if (EditorUI.currentEditingQuestionId) Store.updateInteraction(EditorUI.currentEditingQuestionId, { time: tSec, type: tp, prompt: p, options: opts, correctAnswer: cAns });
+                else Store.addInteraction({ id: Utils.generateId(), time: tSec, type: tp, prompt: p, options: opts, correctAnswer: cAns });
+
+                AudioEngine.play('ding');
+                EditorUI.closeModal(); EditorUI.renderQuestionsList(); EditorUI.updateTimeline(Store.data.video.currentTime, Store.data.video.duration);
+            },
+            renderQuestionsList: () => {
+                const list = document.getElementById('questions-list'); document.getElementById('question-count-badge').innerText = Store.data.interactions.length; list.innerHTML = '';
+                if (Store.data.interactions.length === 0) {
+                    list.innerHTML = `
+                        <div class="border-4 border-dashed border-vq-gray rounded-3xl p-8 flex flex-col items-center justify-center text-center text-vq-gray-dark h-full min-h-[300px]">
+                            <div class="w-24 h-24 bg-white shadow-sm border-[4px] border-vq-gray rounded-full flex items-center justify-center mb-4 text-vq-primary">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            </div>
+                            <h4 class="font-black text-vq-text text-xl mb-1">Crie seu Desafio!</h4>
+                            <p class="font-bold text-base text-vq-text-light mb-6">Encontre o momento perfeito e adicione a 1ª interação.</p>
+                            <svg class="w-8 h-8 text-vq-gray animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        </div>`; return;
+                }
+                Store.data.interactions.forEach(q => {
+                    const div = document.createElement('div'); div.className = "bg-white border-4 border-vq-gray rounded-2xl p-5 hover:border-vq-primary transition-all cursor-pointer flex gap-4 items-center group shadow-sm hover:shadow-md hover:-translate-y-1";
+                    div.onclick = () => editorVideo.seekTo(q.time);
+                    
+                    const iconSvg = q.type === 'explanation' 
+                        ? '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>'
+                        : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>';
+                    const colorClass = q.type === 'explanation' ? 'bg-vq-secondary-light text-vq-secondary-dark border-vq-secondary' : 'bg-vq-primary-light text-vq-primary-dark border-vq-primary';
+
+                    div.innerHTML = `
+                        <div class="${colorClass} rounded-xl px-3 py-2 font-black border-4 shrink-0 flex items-center gap-1">${iconSvg} ${Utils.formatTime(q.time)}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-black text-vq-text truncate text-lg">${q.prompt}</p>
+                        </div>
+                        <div class="flex gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); EditorUI.openQuestionModal('${q.id}')" class="text-vq-primary hover:text-white bg-vq-primary-light hover:bg-vq-primary p-3 rounded-xl transition-colors border-2 border-transparent hover:border-vq-primary-dark"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button onclick="event.stopPropagation(); EditorUI.deleteQuestion('${q.id}')" class="text-vq-danger hover:text-white bg-vq-danger-light hover:bg-vq-danger p-3 rounded-xl transition-colors border-2 border-transparent hover:border-vq-danger-dark"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>`; list.appendChild(div);
+                });
+            },
+            deleteQuestion: (id) => { UI.showAlert("Excluir Pergunta?", "Tem certeza que quer deletar esta pergunta?", "warning", () => { Store.deleteInteraction(id); EditorUI.renderQuestionsList(); EditorUI.updateTimeline(Store.data.video.currentTime, Store.data.video.duration); }); },
+            exportJSON: () => {
+                AudioEngine.play('ding');
+                EditorUI.updateMetadata();
+                const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Store.data, null, 2));
+                a.download = `VídeoQuiz_${Store.data.metadata.title || 'Export'}.json`; document.body.appendChild(a); a.click(); a.remove();
+            },
+            startTest: () => { if (editorVideo) editorVideo.pause(); PlayerUI.init(); }
+        };
+
+        /** STREAMING_CHUNK:CONTROLADOR DO ALUNO E GAMIFICAÇÃO **/
+        const PlayerUI = {
+            answeredQuestions: new Set(), interactionAttempts: {}, currentActiveInteraction: null, isPanelOpen: false, mode: 'individual', timerInterval: null,
+
+            init: async () => {
+                UI.switchView('view-player'); document.getElementById('student-title-display').innerText = Store.data.metadata.title || "Atividade Incrível";
+                
+                // Carrega Progresso Local do Aluno para a Barra
+                const pData = StudentStorage.load(Store.data.metadata.id);
+                PlayerUI.answeredQuestions = new Set(pData.answered); PlayerUI.interactionAttempts = pData.attempts;
+                PlayerUI.updateStudentProgress(); PlayerUI.hideQuestionPanel();
+                
+                const overlay = document.getElementById('start-overlay'); const actions = document.getElementById('start-actions'); const status = document.getElementById('start-overlay-status');
+                overlay.classList.remove('hidden'); actions.classList.add('hidden'); status.innerText = 'Carregando o vídeo...';
+                Motion.animate(overlay, { opacity: [0, 1], y: [15, 0] }, { duration: 0.4, easing: "ease-out" });
+                
+                if (studentVideo) studentVideo.destroy();
+                studentVideo = new YouTubeAdapter('student-video-container', true);
+                studentVideo.onTimeUpdateCallback = (curr, dur) => {
+                    document.getElementById('student-progress-bar').style.width = `${(curr / dur) * 100}%`;
+                    if (!PlayerUI.isPanelOpen) { const trigger = Store.data.interactions.find(q => !PlayerUI.answeredQuestions.has(q.id) && curr >= q.time && curr < (q.time + 1.5)); if (trigger) PlayerUI.showQuestion(trigger); }
+                };
+                try { await studentVideo.loadVideo(Store.data.video.videoId); PlayerUI.renderStartOptions(); } catch (e) { status.innerText = e.message; UI.showAlert('Ops!', e.message, 'error'); }
+            },
+            handleOverlayClick: () => {
+                // Efeito visual quando o aluno clica no overlay de bloqueio
+                const ov = document.getElementById('student-video-overlay');
+                ov.style.boxShadow = 'inset 0 0 0 10px rgba(249,115,22,0.5)'; setTimeout(()=>{ov.style.boxShadow='none'},200);
+            },
+            renderStartOptions: () => {
+                const pData = StudentStorage.load(Store.data.metadata.id);
+                const hasProgress = pData.answered.length > 0;
+                
+                const status = document.getElementById('start-overlay-status');
+                status.innerText = 'Escolha como deseja aplicar a atividade:';
+                
+                const actions = document.getElementById('start-actions');
+                actions.innerHTML = '';
+                
+                if (hasProgress) {
+                    const btnCont = document.createElement('button');
+                    btnCont.className = "btn-vq btn-vq-primary w-full text-lg py-4 rounded-2xl mb-3 shadow-[0_6px_0_#0891B2] animate-soft-blink";
+                    btnCont.innerHTML = "▶️ Continuar de onde parou (Individual)";
+                    btnCont.onclick = () => PlayerUI.startVideo('individual', true);
+                    actions.appendChild(btnCont);
+                    
+                    const btnRest = document.createElement('button');
+                    btnRest.className = "btn-vq btn-vq-outline w-full text-lg py-4 rounded-2xl mb-4 !border-white/20 !text-white hover:!bg-white/10";
+                    btnRest.innerHTML = "🔄 Começar Novamente (Individual)";
+                    btnRest.onclick = () => PlayerUI.startVideo('individual', false);
+                    actions.appendChild(btnRest);
+                } else {
+                    const btnInd = document.createElement('button');
+                    btnInd.className = "btn-vq btn-vq-primary w-full text-lg py-4 rounded-2xl mb-4 shadow-[0_6px_0_#0891B2] animate-soft-blink";
+                    btnInd.innerHTML = "👤 Modo Individual";
+                    btnInd.onclick = () => PlayerUI.startVideo('individual', false);
+                    actions.appendChild(btnInd);
+                }
+                
+                const sep = document.createElement('div');
+                sep.className = "w-full border-t-2 border-white/10 my-2 mb-4 relative flex justify-center";
+                sep.innerHTML = '<span class="bg-vq-student-dark px-3 text-white/50 text-xs font-black uppercase absolute -top-2">OU</span>';
+                actions.appendChild(sep);
+                
+                const btnPres = document.createElement('button');
+                btnPres.className = "btn-vq btn-vq-secondary w-full text-lg py-4 rounded-2xl shadow-[0_6px_0_#EA580C]";
+                btnPres.innerHTML = "👨‍🏫 Apresentação em Sala";
+                btnPres.onclick = () => PlayerUI.startVideo('presentation', false);
+                actions.appendChild(btnPres);
+                
+                actions.classList.remove('hidden');
+            },
+            startVideo: (mode, keepProgress) => {
+                PlayerUI.mode = mode;
+                if (!keepProgress) {
+                    PlayerUI.answeredQuestions.clear();
+                    PlayerUI.interactionAttempts = {};
+                    if(mode === 'individual') StudentStorage.save(Store.data.metadata.id, PlayerUI.answeredQuestions, PlayerUI.interactionAttempts);
+                } else {
+                    const pData = StudentStorage.load(Store.data.metadata.id);
+                    PlayerUI.answeredQuestions = new Set(pData.answered);
+                    PlayerUI.interactionAttempts = pData.attempts;
+                }
+                PlayerUI.updateStudentProgress();
+
+                if (location.protocol === 'file:') { PlayerUI.handlePlaybackFailure('Abra usando um Live Server local para burlar as proteções de IFrame.'); return; }
+                const overlay = document.getElementById('start-overlay'); const actions = document.getElementById('start-actions'); const status = document.getElementById('start-overlay-status');
+                
+                actions.classList.add('hidden');
+                status.innerText = 'Iniciando...'; 
+                
+                if (!studentVideo.play()) { PlayerUI.handlePlaybackFailure('Falha ao acionar player.'); return; }
+                let att = 0; const check = setInterval(() => {
+                    att++; let state = -1; try { state = studentVideo.player.getPlayerState(); } catch(e){}
+                    if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) { clearInterval(check); overlay.classList.add('hidden'); }
+                    else if (att >= 12) { clearInterval(check); PlayerUI.handlePlaybackFailure('Vídeo bloqueado por interação. Tente clicar iniciar novamente.'); PlayerUI.renderStartOptions(); }
+                }, 250);
+            },
+            handlePlaybackFailure: (m) => { document.getElementById('start-overlay').classList.remove('hidden'); document.getElementById('start-actions').classList.remove('hidden'); document.getElementById('start-overlay-status').innerText = m; UI.showAlert('Aviso de Reprodução', m, 'warning'); },
+            
+            showQuestion: (inter) => {
+                AudioEngine.play('pop');
+                PlayerUI.isPanelOpen = true; studentVideo.pause(); PlayerUI.currentActiveInteraction = inter;
+                document.getElementById('student-q-prompt').innerText = inter.prompt;
+                const optCont = document.getElementById('student-q-options'); optCont.innerHTML = '';
+                
+                const btnConfirm = document.getElementById('btn-student-confirm'); const btnCont = document.getElementById('btn-student-continue'); const btnRe = document.getElementById('btn-student-rewatch'); const fb = document.getElementById('student-feedback-area');
+                
+                const panel = document.getElementById('student-question-panel');
+                btnConfirm.classList.remove('hidden'); btnConfirm.disabled = true; btnCont.classList.add('hidden'); btnRe.classList.add('hidden'); fb.classList.add('hidden');
+                
+                const presActions = document.getElementById('presentation-actions');
+                if (PlayerUI.mode === 'presentation') {
+                    panel.classList.add('presentation-mode'); presActions.classList.remove('hidden');
+                    
+                    const btnTimer = document.getElementById('btn-pres-timer');
+                    clearInterval(PlayerUI.timerInterval);
+                    btnTimer.innerText = "⏳ Iniciar Tempo (30s)"; btnTimer.disabled = false;
+                    btnTimer.classList.remove('btn-vq-danger', 'text-white'); btnTimer.classList.add('btn-vq-outline');
+                    btnTimer.onclick = () => PlayerUI.startTimer();
+                    
+                    const btnReveal = document.getElementById('btn-pres-reveal');
+                    btnReveal.disabled = false; btnReveal.onclick = () => PlayerUI.revealAnswer(inter);
+                    
+                    document.getElementById('btn-pres-repeat').onclick = () => { PlayerUI.hideQuestionPanel(); const rewindTime = Math.max(0, inter.time - 15); studentVideo.seekTo(rewindTime); studentVideo.play(); };
+                } else {
+                    panel.classList.remove('presentation-mode'); presActions.classList.add('hidden');
+                }
+
+                if (inter.type === 'explanation') {
+                    btnConfirm.classList.add('hidden');
+                    btnCont.classList.remove('hidden');
+                    btnCont.innerText = "Entendido, Continuar";
+                    btnCont.onclick = () => { if(PlayerUI.mode !== 'presentation') PlayerUI.saveProgress(inter.id); PlayerUI.hideQuestionPanel(); studentVideo.play(); };
+                    presActions.classList.add('hidden');
+                } else {
+                    btnCont.innerText = "Continuar Vídeo";
+                    inter.options.forEach(opt => {
+                        const btn = document.createElement('button'); btn.className = "option-vq"; btn.innerText = opt.text; btn.dataset.id = opt.id;
+                        btn.onclick = () => { document.querySelectorAll('.option-vq').forEach(b => b.className = "option-vq"); btn.classList.add('selected-primary'); btnConfirm.disabled = false; btnConfirm.onclick = () => PlayerUI.checkAnswer(opt.id, inter.correctAnswer); }; optCont.appendChild(btn);
+                    });
+                }
+                
+                panel.classList.remove('translate-y-full');
+                Motion.animate(panel, { y: ["100%", "0%"] }, { easing: Motion.spring({ stiffness: 300, damping: 25 }) });
+            },
+            checkAnswer: (selectedId, correctId) => {
+                const interId = PlayerUI.currentActiveInteraction.id;
+                PlayerUI.interactionAttempts[interId] = (PlayerUI.interactionAttempts[interId] || 0) + 1;
+                const attempts = PlayerUI.interactionAttempts[interId]; const isCorrect = selectedId === correctId;
+
+                const btnConfirm = document.getElementById('btn-student-confirm'); const btnCont = document.getElementById('btn-student-continue'); const btnRe = document.getElementById('btn-student-rewatch'); const fb = document.getElementById('student-feedback-area'); const panel = document.getElementById('student-question-panel');
+                
+                btnConfirm.classList.add('hidden'); fb.classList.remove('hidden'); document.getElementById('presentation-actions').classList.add('hidden');
+                
+                if (isCorrect) {
+                    AudioEngine.play('bonus');
+                    document.querySelectorAll('.option-vq').forEach(b => { b.disabled = true; b.className = "option-vq disabled-unselected"; if(b.dataset.id === correctId) { b.classList.remove('disabled-unselected'); b.classList.add('selected-success'); } });
+                    btnCont.classList.remove('hidden');
+                    fb.className = "rounded-3xl p-6 mb-8 text-xl font-black border-4 border-vq-success-dark bg-vq-success-light text-vq-success-dark flex items-center gap-6";
+                    fb.innerHTML = '<div class=\"w-16 h-16 rounded-[20px] bg-vq-success text-white flex items-center justify-center shrink-0 shadow-[0_6px_0_#059669] border-2 border-vq-success-light\"><svg class=\"w-10 h-10\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin="round\" stroke-width=\"4\" d=\"M5 13l4 4L19 7\"></path></svg></div> <div>Incrível! Você acertou em cheio! 🎉</div>';
+                    
+                    if (window.confetti) confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 }, zIndex: 100, colors: ['#06B6D4', '#F97316', '#10B981', '#ffffff'] });
+                    
+                    if(PlayerUI.mode !== 'presentation') PlayerUI.saveProgress(interId); btnCont.onclick = () => { PlayerUI.hideQuestionPanel(); studentVideo.play(); };
+                } else {
+                    AudioEngine.play('error');
+                    Motion.animate(panel, { x: [0, -10, 10, -10, 10, 0] }, { duration: 0.4 });
+                    
+                    if (attempts === 1 && PlayerUI.mode !== 'presentation') { // 1º Erro guiado (apenas individual)
+                        document.querySelectorAll('.option-vq').forEach(b => { b.disabled = true; b.className = "option-vq disabled-unselected"; if (b.dataset.id === selectedId) { b.classList.remove('disabled-unselected'); b.classList.add('selected-danger'); } });
+                        btnRe.classList.remove('hidden');
+                        fb.className = "rounded-3xl p-6 mb-8 text-xl font-black border-4 border-vq-secondary-dark bg-vq-secondary-light text-vq-secondary-dark flex items-center gap-6";
+                        fb.innerHTML = '<div class=\"w-16 h-16 rounded-[20px] bg-vq-secondary text-white flex items-center justify-center shrink-0 shadow-[0_6px_0_#EA580C] border-2 border-vq-secondary-light\"><svg class=\"w-10 h-10\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin="round\" stroke-width=\"4\" d=\"M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg></div> <div>Quase! Que tal rever os últimos segundos do vídeo e tentar de novo? 🤔</div>';
+                        
+                        btnRe.onclick = () => { PlayerUI.hideQuestionPanel(); const rewindTime = Math.max(0, PlayerUI.currentActiveInteraction.time - 20); studentVideo.seekTo(rewindTime); studentVideo.play(); };
+                    } else { // 2º Erro ou Apresentação
+                        document.querySelectorAll('.option-vq').forEach(b => { b.disabled = true; b.className = "option-vq disabled-unselected"; if(b.dataset.id === correctId) { b.classList.remove('disabled-unselected'); b.classList.add('selected-success'); } else if (b.dataset.id === selectedId) { b.classList.remove('disabled-unselected'); b.classList.add('selected-danger'); } });
+                        btnCont.classList.remove('hidden');
+                        fb.className = "rounded-3xl p-6 mb-8 text-xl font-black border-4 border-vq-danger-dark bg-vq-danger-light text-vq-danger-dark flex items-center gap-6";
+                        fb.innerHTML = '<div class=\"w-16 h-16 rounded-[20px] bg-vq-danger text-white flex items-center justify-center shrink-0 shadow-[0_6px_0_#E11D48] border-2 border-vq-danger-light\"><svg class=\"w-10 h-10\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin="round\" stroke-width=\"4\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></div> <div>Essa era bem difícil! A resposta correta está em verde. Seguimos em frente! 🚀</div>';
+                        
+                        if(PlayerUI.mode !== 'presentation') PlayerUI.saveProgress(interId); btnCont.onclick = () => { PlayerUI.hideQuestionPanel(); studentVideo.play(); };
+                    }
+                }
+            },
+            revealAnswer: (inter) => {
+                AudioEngine.play('correct');
+                clearInterval(PlayerUI.timerInterval);
+                const correctId = inter.correctAnswer;
+                document.getElementById('btn-student-confirm').classList.add('hidden');
+                const fb = document.getElementById('student-feedback-area'); fb.classList.remove('hidden');
+                
+                document.querySelectorAll('.option-vq').forEach(b => {
+                    b.disabled = true; b.className = "option-vq disabled-unselected";
+                    if(b.dataset.id === correctId) { b.classList.remove('disabled-unselected'); b.classList.add('selected-success'); }
+                });
+                
+                const btnCont = document.getElementById('btn-student-continue'); btnCont.classList.remove('hidden'); btnCont.innerText = "Continuar Vídeo";
+                fb.className = "rounded-3xl p-6 mb-8 text-xl font-black border-4 border-vq-success-dark bg-vq-success-light text-vq-success-dark flex items-center gap-6";
+                fb.innerHTML = '<div class=\"w-16 h-16 rounded-[20px] bg-vq-success text-white flex items-center justify-center shrink-0 shadow-[0_6px_0_#059669] border-2 border-vq-success-light\"><svg class=\"w-10 h-10\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin="round\" stroke-width=\"4\" d=\"M5 13l4 4L19 7\"></path></svg></div> <div>Resposta Revelada! A correta está destacada em verde.</div>';
+                
+                document.getElementById('btn-pres-reveal').disabled = true;
+                btnCont.onclick = () => { PlayerUI.hideQuestionPanel(); studentVideo.play(); };
+            },
+            startTimer: () => {
+                let timeLeft = 30; const btn = document.getElementById('btn-pres-timer'); btn.disabled = true; btn.innerText = `⏳ Tempo: ${timeLeft}s`;
+                PlayerUI.timerInterval = setInterval(() => {
+                    timeLeft--;
+                    if(timeLeft <= 0) { clearInterval(PlayerUI.timerInterval); btn.innerText = `⏳ Tempo Esgotado!`; btn.classList.remove('btn-vq-outline'); btn.classList.add('btn-vq-danger', 'text-white'); }
+                    else { btn.innerText = `⏳ Tempo: ${timeLeft}s`; }
+                }, 1000);
+            },
+            saveProgress: (interId) => { PlayerUI.answeredQuestions.add(interId); PlayerUI.updateStudentProgress(); StudentStorage.save(Store.data.metadata.id, PlayerUI.answeredQuestions, PlayerUI.interactionAttempts); },
+            hideQuestionPanel: () => { 
+                clearInterval(PlayerUI.timerInterval); 
+                const panel = document.getElementById('student-question-panel');
+                Motion.animate(panel, { y: "100%" }, { easing: Motion.spring({ stiffness: 300, damping: 25 }) }).finished.then(() => {
+                    panel.classList.add('translate-y-full'); 
+                    PlayerUI.isPanelOpen = false; 
+                });
+            },
+            updateStudentProgress: () => { document.getElementById('student-progress-text').innerText = `${PlayerUI.answeredQuestions.size} / ${Store.data.interactions.length}`; },
+            exitTest: () => { if (studentVideo) studentVideo.pause(); clearInterval(PlayerUI.timerInterval); UI.switchView('view-editor'); }
+        };
+
+        // Objeto de Fallback preventivo caso a internet esteja lenta
+        let Motion = { animate: () => ({ finished: Promise.resolve() }), spring: () => "ease-out" };
+
+        // Carrega o Motion via módulo ESM dinâmico para não quebrar o escopo global
+        import('https://cdn.jsdelivr.net/npm/motion@10.16.2/+esm').then(module => {
+            Motion = module;
+            // Initialize App
+            UI.switchView('view-home');
+        }).catch(err => {
+            console.warn("Aviso: Animações desativadas devido a bloqueio de rede.", err);
+            // Inicia mesmo sem animações
+            UI.switchView('view-home');
+        });
+    </script>
+</body>
+</html>
