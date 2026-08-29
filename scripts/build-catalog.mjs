@@ -3,21 +3,30 @@ import path from 'node:path';
 
 const toolsDir = path.resolve('tools');
 const output = path.resolve('data/tools.json');
-
 const entries = await readdir(toolsDir, { withFileTypes: true });
 const tools = [];
+
+const toPortalPath = (toolFolder, value) => {
+  if (!value) return null;
+  if (/^(https?:|data:|\/)/i.test(value)) return value;
+  const normalized = value.replace(/^\.\//, '');
+  return `./tools/${toolFolder}/${normalized}`;
+};
 
 for (const entry of entries) {
   if (!entry.isDirectory()) continue;
   const manifestPath = path.join(toolsDir, entry.name, 'manifest.json');
+
   try {
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
     if (!manifest.id || !manifest.name || !manifest.url) {
       throw new Error(`Manifesto incompleto em ${entry.name}`);
     }
+
     tools.push({
       ...manifest,
-      url: manifest.url.replace(/^\.\.\/\.\.\//, './'),
+      url: toPortalPath(entry.name, manifest.url),
+      cover: toPortalPath(entry.name, manifest.cover),
       coverType: manifest.coverType || (manifest.id === 'videoquiz' ? 'video' : 'default')
     });
   } catch (error) {
