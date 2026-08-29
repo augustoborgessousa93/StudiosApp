@@ -2,7 +2,7 @@
   {
     "id": "videoquiz",
     "name": "VídeoQuiz",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "status": "active",
     "featured": true,
     "description": "Transforme vídeos do YouTube em experiências interativas com perguntas ao longo da reprodução.",
@@ -24,8 +24,8 @@
       "Ensino Médio"
     ],
     "estimatedTime": "3 min",
-    "cover": null,
-    "url": "./v_deoquiz_app.html",
+    "cover": "./tools/videoquiz/cover.svg",
+    "url": "./tools/videoquiz/index.html",
     "tags": [
       "vídeo",
       "quiz",
@@ -41,6 +41,7 @@
     ],
     "offlineCapable": false,
     "new": true,
+    "integrationMode": "adapter",
     "coverType": "video"
   }
 ]
