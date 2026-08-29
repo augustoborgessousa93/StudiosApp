@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="VídeoQuiz integrado ao BC Hub Pedagógico." />
+  <title>VídeoQuiz | BC Hub Pedagógico</title>
+  <style>
+    *{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f7f8fc;color:#15171f;overflow:hidden}.hub-bar{height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;background:#fff;border-bottom:1px solid #e7eaf0;box-shadow:0 4px 18px rgba(22,29,50,.06);position:relative;z-index:2}.hub-brand{display:flex;align-items:center;gap:10px;font-weight:800}.hub-dot{width:30px;height:30px;border-radius:10px;background:#5b35f5;display:grid;place-items:center;color:#fff;box-shadow:0 4px 0 #4320d8}.hub-back{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid #e7eaf0;background:#fff;color:#4320d8;font-weight:750;text-decoration:none;box-shadow:0 3px 0 #d9ddea;transition:transform .12s ease,box-shadow .12s ease}.hub-back:hover{transform:translateY(1px);box-shadow:0 2px 0 #d9ddea}.hub-back:active{transform:translateY(3px);box-shadow:none}.hub-back:focus-visible{outline:3px solid #b7f000;outline-offset:3px}.tool-frame{width:100%;height:calc(100vh - 54px);border:0;display:block;background:#f8fafc}@media(max-width:640px){.hub-bar{height:50px;padding:0 10px}.hub-brand span:last-child{display:none}.tool-frame{height:calc(100vh - 50px)}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="hub-bar">
+    <div class="hub-brand" aria-label="BC Hub Pedagógico">
+      <span class="hub-dot" aria-hidden="true">BC</span>
+      <span>BC Hub <small style="font-weight:600;color:#667085">/ VídeoQuiz</small></span>
+    </div>
+    <a class="hub-back" href="../../index.html" aria-label="Voltar ao BC Hub Pedagógico">← Voltar ao Hub</a>
+  </header>
+  <iframe class="tool-frame" src="../../v_deoquiz_app.html" title="VídeoQuiz" allow="fullscreen; autoplay; clipboard-write" loading="eager"></iframe>
+</body>
+</html>

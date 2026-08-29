@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Capa do VídeoQuiz</title>
+  <desc id="desc">Ilustração abstrata em roxo, ciano e laranja representando vídeo e perguntas interativas.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5B35F5"/><stop offset="1" stop-color="#3182F6"/></linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#eef4ff"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#1e1b4b" flood-opacity=".22"/></filter>
+  </defs>
+  <rect width="1280" height="720" rx="48" fill="url(#bg)"/>
+  <circle cx="1100" cy="120" r="180" fill="#B7F000" opacity=".28"/>
+  <circle cx="160" cy="650" r="210" fill="#2BC8D9" opacity=".35"/>
+  <g filter="url(#shadow)">
+    <rect x="190" y="150" width="700" height="420" rx="38" fill="url(#card)"/>
+    <rect x="245" y="205" width="590" height="250" rx="28" fill="#15171F"/>
+    <circle cx="540" cy="330" r="76" fill="#06B6D4"/>
+    <path d="M520 286 590 330 520 374Z" fill="#fff"/>
+    <rect x="270" y="492" width="300" height="24" rx="12" fill="#DCE3EF"/>
+    <rect x="270" y="492" width="185" height="24" rx="12" fill="#5B35F5"/>
+    <circle cx="455" cy="504" r="19" fill="#FFB020" stroke="#fff" stroke-width="8"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="820" y="235" width="280" height="205" rx="32" fill="#fff"/>
+    <circle cx="880" cy="300" r="34" fill="#FFB020"/>
+    <text x="880" y="313" text-anchor="middle" font-family="Arial,sans-serif" font-size="38" font-weight="700" fill="#fff">?</text>
+    <rect x="935" y="277" width="120" height="20" rx="10" fill="#DCE3EF"/>
+    <rect x="850" y="350" width="220" height="18" rx="9" fill="#EAE5FF"/>
+    <rect x="850" y="385" width="165" height="18" rx="9" fill="#EAF3FF"/>
+  </g>
+  <g font-family="Arial,sans-serif" fill="#fff">
+    <text x="190" y="100" font-size="54" font-weight="800">VídeoQuiz</text>
+    <text x="195" y="635" font-size="30" font-weight="600" opacity=".9">Transforme vídeos em experiências interativas.</text>
+  </g>
+</svg>

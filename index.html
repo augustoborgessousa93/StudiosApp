@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BC Hub Pedagógico — ferramentas simples, lúdicas e prontas para transformar ideias em experiências de aprendizagem." />
+  <title>BC Hub Pedagógico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/tokens.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/portal.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Ir para o conteúdo</a>
+
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="BC Hub Pedagógico — início">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="img"><path d="M12 10h24a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6H12a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z" fill="currentColor"/><path d="m21 18 10 6-10 6V18Z" fill="white"/></svg>
+        </span>
+        <span>
+          <strong>BC Hub</strong>
+          <small>Ferramentas Pedagógicas</small>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Navegação principal">
+        <a class="active" href="#inicio">Início</a>
+        <a href="#ferramentas">Ferramentas</a>
+        <a href="#categorias">Categorias</a>
+        <a href="#novidades">Novidades</a>
+      </nav>
+
+      <button class="icon-btn" id="openSearch" type="button" aria-label="Abrir busca">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero shell" id="inicio">
+      <div class="hero-copy">
+        <span class="eyebrow">✨ Mais possibilidades. Menos preparação.</span>
+        <h1>Ferramentas que transformam ideias em <span>experiências de aprendizagem.</span></h1>
+        <p>Encontre recursos pedagógicos, jogos e atividades prontas para criar, adaptar e usar com sua turma — sem complicação.</p>
+
+        <form class="hero-search" id="heroSearch" role="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg>
+          <label class="sr-only" for="searchInput">Buscar ferramentas</label>
+          <input id="searchInput" type="search" placeholder="O que você precisa para sua aula?" autocomplete="off" />
+          <button class="btn btn-primary" type="submit">Buscar</button>
+        </form>
+
+        <div class="trust-row" aria-label="Destaques da plataforma">
+          <span>Sem instalação</span>
+          <span>Uso imediato</span>
+          <span>Feito para professores</span>
+        </div>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+        <div class="tool-collage">
+          <div class="mini-card mini-card-main">
+            <span class="mini-icon">▶</span>
+            <strong>VídeoQuiz</strong>
+            <small>Vídeo + perguntas</small>
+          </div>
+          <div class="mini-card mini-card-side mini-card-one"><span>✦</span> Interagir</div>
+          <div class="mini-card mini-card-side mini-card-two"><span>✓</span> Avaliar</div>
+          <div class="spark spark-1">✦</div>
+          <div class="spark spark-2">●</div>
+          <div class="spark spark-3">✦</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell" id="categorias">
+      <div class="section-head compact">
+        <div>
+          <span class="section-kicker">Acesso rápido</span>
+          <h2>O que você quer fazer hoje?</h2>
+        </div>
+      </div>
+      <div class="quick-grid" id="categoryChips" aria-label="Categorias de ferramentas"></div>
+    </section>
+
+    <section class="section shell" id="ferramentas">
+      <div class="section-head">
+        <div>
+          <span class="section-kicker">Sua caixa de ferramentas</span>
+          <h2>Ferramentas pedagógicas</h2>
+          <p>Escolha, configure e use. O resto fica com a gente.</p>
+        </div>
+        <div class="result-count" id="resultCount" aria-live="polite"></div>
+      </div>
+
+      <div class="filter-row" id="filterRow" aria-label="Filtros"></div>
+      <div class="tools-grid" id="toolsGrid" aria-live="polite"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <div class="empty-icon" aria-hidden="true">⌕</div>
+        <h3>Nenhuma ferramenta encontrada</h3>
+        <p>Tente buscar com outras palavras ou escolha outra categoria.</p>
+        <button class="btn btn-secondary" id="clearFilters" type="button">Limpar filtros</button>
+      </div>
+    </section>
+
+    <section class="section shell" id="novidades">
+      <div class="feature-banner">
+        <div>
+          <span class="section-kicker">Em construção contínua</span>
+          <h2>Uma ferramenta nova pode virar sua próxima aula favorita.</h2>
+          <p>O hub foi preparado para crescer sem perder organização, velocidade ou simplicidade.</p>
+        </div>
+        <a class="btn btn-lime" href="#ferramentas">Explorar ferramentas</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div class="brand footer-brand">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 10h24a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6H12a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z" fill="currentColor"/><path d="m21 18 10 6-10 6V18Z" fill="white"/></svg></span>
+        <span><strong>BC Hub</strong><small>Ferramentas Pedagógicas</small></span>
+      </div>
+      <p>Tempo, possibilidades e autonomia para o professor.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/portal.js"></script>
+</body>
+</html>
