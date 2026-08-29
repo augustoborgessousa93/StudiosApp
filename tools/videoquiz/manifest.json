@@ -1,7 +1,7 @@
 {
   "id": "videoquiz",
   "name": "VídeoQuiz",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "active",
   "featured": true,
   "description": "Transforme vídeos do YouTube em experiências interativas com perguntas ao longo da reprodução.",
@@ -10,10 +10,11 @@
   "schoolStages": ["Fundamental I", "Fundamental II", "Ensino Médio"],
   "grades": ["1º ao 5º", "6º ao 9º", "Ensino Médio"],
   "estimatedTime": "3 min",
-  "cover": null,
-  "url": "../../v_deoquiz_app.html",
+  "cover": "./cover.svg",
+  "url": "./index.html",
   "tags": ["vídeo", "quiz", "youtube", "perguntas", "revisão", "avaliação", "interatividade"],
   "outputs": ["apresentação", "atividade interativa"],
   "offlineCapable": false,
-  "new": true
+  "new": true,
+  "integrationMode": "adapter"
 }
